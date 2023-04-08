@@ -2,7 +2,7 @@
 if [[ "$1" == "build" ]]
 then
   echo build start
-  docker image build -t youdian_backend .
+  docker build -t youdian_backend .
 fi
 
 if [[ "$1" == "start" ]]
