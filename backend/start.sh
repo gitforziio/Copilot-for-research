@@ -1,2 +1,3 @@
+source venv/bin/activate
 cd src
-python -m flask run --debug
+python3 -m flask run --debug
