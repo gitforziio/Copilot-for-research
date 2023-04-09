@@ -118,14 +118,24 @@ def create_conversation():
         next_keywords, tags = [], []
     else:
         # TODO: get answer from AI
-        ai_response = ai_answer(question)
+        try:
+            ai_response = ai_answer(question)
+        except Exception as e:
+            print(e)
+            ai_response = {
+                "file_name": None,
+                "answer": "AI正忙",
+                "follow_up": []
+            }
         # ai_response = {
         #     "file_name": "fake_fn.txt",
         #     "answer": "fake answer"
         # }
         filename = ai_response['file_name']
         doc_title = filename[:-4]
-        answer, next_keywords, tags = ai_response['answer'], [], []
+        next_keywords = ai_response['follow_up']
+        answer = ai_response['answer']
+        tags = []
 
     ret = conversation_dao.insert_conversation(type, topic_id, doc_id, doc_title, question, answer, next_keywords, tags)
     return ret.__dict__

@@ -20,15 +20,15 @@ class ConversationDao():
 
     def get_all_under_topic(self, topic_id):
         rows = query("""
-        select id, type, topic_id, document_id, question, answer, next_keywords, tag_ids, UNIX_TIMESTAMP(last_modified_time) ts
+        select id, type, topic_id, document_id, document_title, question, answer, next_keywords, tag_ids, UNIX_TIMESTAMP(last_modified_time) ts
         from conversation
         where topic_id = %s
         """ % str(topic_id))
         ret = []
         for r in rows:
-            next_keywords = r[6].split(',') if r[6] else []
-            tag_ids = [int(_) for _ in r[7].split(',')] if r[7] else []
-            ele = Conversation(r[0], r[1], r[2], r[3], "", r[4], r[5], next_keywords, tag_ids, r[8])
+            next_keywords = r[7].split(',') if r[7] else []
+            tag_ids = [int(_) for _ in r[8].split(',')] if r[8] else []
+            ele = Conversation(r[0], r[1], r[2], r[3], r[4], r[5], r[6], next_keywords, tag_ids, r[9])
             ret.append(ele)
         return ret
     
