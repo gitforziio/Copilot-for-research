@@ -73,7 +73,7 @@ def get_contextbased_answer_notlangchain(context,question):
 def get_answer(question, index_name = index_name, mode = 'langchain'):
     results = doc_search(question, index_name)
     llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
-    if mode == 'langchain':
+    if mode == 'defua':
         chain = load_qa_chain(llm, chain_type="stuff")
         answer = chain.run(input_documents=results, question=question)
     else:
@@ -103,7 +103,7 @@ def get_followup_keywords(question,answer,context):
 
     return completion.choices[0].message['content']
 
-def ai_answer(question,mode = 'langchain'):
+def ai_answer(question,mode = 'default'):
     path, answer,follow_up = get_answer(question,mode = mode)
     file_name = path.split("/")[-1]
     follow_ups = [x.split(": ")[-1] for x in follow_up.split("\n")]
