@@ -8,6 +8,7 @@ from dao.note_dao import NoteDao
 from dao.document_dao import DocumentDao
 from utils import get_nullable, get_json_from_request
 from ai_utils.qa import ai_answer
+import re
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
@@ -20,6 +21,11 @@ topic_dao = TopicDao()
 conversation_dao = ConversationDao()
 note_dao = NoteDao()
 document_dao = DocumentDao()
+
+def keep_chinese(str):
+    chinese = "[^\u4e00-\u9fa5]"
+    str = re.sub(chinese, "", str)
+    return str
 
 @app.route("/topic/all")
 def get_all_topics():
@@ -135,6 +141,8 @@ def create_conversation():
         doc_title = filename[:-4]
         next_keywords = ai_response['follow_up']
         answer = ai_response['answer']
+        if next_keywords:
+            next_keywords = [keep_chinese(_.strip()) for _ in next_keywords]
         tags = []
 
     ret = conversation_dao.insert_conversation(type, topic_id, doc_id, doc_title, question, answer, next_keywords, tags)
