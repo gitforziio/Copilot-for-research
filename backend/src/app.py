@@ -109,6 +109,7 @@ def create_conversation():
     doc_id = get_nullable(data, 'doc_id')
     question = get_nullable(data, 'question')
 
+    doc_title = None
     if type == "full":
         answer = document_dao.get_full_document(doc_id)
         next_keywords, tags = [], []
@@ -119,9 +120,10 @@ def create_conversation():
         # TODO: get answer from AI
         ai_response = ai_answer(question)
         filename = ai_response['file_name']
+        doc_title = filename[:-4]
         answer, next_keywords, tags = ai_response['answer'], [], []
 
-    ret = conversation_dao.insert_conversation(type, topic_id, doc_id, question, answer, next_keywords, tags)
+    ret = conversation_dao.insert_conversation(type, topic_id, doc_id, doc_title, question, answer, next_keywords, tags)
     return ret.__dict__
     # return {
     #     "conversation_id": 1,
