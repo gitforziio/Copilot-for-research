@@ -119,6 +119,10 @@ def create_conversation():
     else:
         # TODO: get answer from AI
         ai_response = ai_answer(question)
+        # ai_response = {
+        #     "file_name": "fake_fn.txt",
+        #     "answer": "fake answer"
+        # }
         filename = ai_response['file_name']
         doc_title = filename[:-4]
         answer, next_keywords, tags = ai_response['answer'], [], []
@@ -149,7 +153,7 @@ def create_note():
 
     topic_id = data['topic_id']
     conversation_id = get_nullable(data, 'conversation_id')
-    note_id = get_nullable(data, 'note_id')
+    # note_id = get_nullable(data, 'note_id')
     text = get_nullable(data, 'text')
     text_start = get_nullable(data, 'text_start')
     text_end = get_nullable(data, 'text_end')
