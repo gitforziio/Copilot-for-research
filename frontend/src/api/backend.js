@@ -4,7 +4,7 @@ const apiBaseUrl = "http://ec2-18-139-160-126.ap-southeast-1.compute.amazonaws.c
 
 const apiAxios = new axios.create({
   baseURL: apiBaseUrl,
-  timeout: 10000,
+  timeout: 2*60_000,
   // headers: {'X-Custom-Header': 'foobar'},
 });
 
@@ -30,7 +30,7 @@ export class BackendApi {
   async getTopicConversations(topicId) {
     // return apiAxios.get(`topic/${topicId}/conversations`);
     try {
-      bad;
+      // bad;
       const resp = await apiAxios.get(`topic/${topicId}/conversations`);
       return resp;
     } catch(error) {
@@ -88,6 +88,16 @@ export class BackendApi {
 
     const resp = await apiAxios.post(`note/create`, {
       topic_id, conversation_id, text, text_start, text_end, comment
+    });
+    return resp;
+  }
+  async createNewConversation(type, topic_id, doc_id, question) {
+    // type: full/summary/question,
+    // topic_id,
+    // doc_id: Optional
+    // question: Optional
+    const resp = await apiAxios.post(`conversation/create`, {
+      type, topic_id, doc_id, question,
     });
     return resp;
   }

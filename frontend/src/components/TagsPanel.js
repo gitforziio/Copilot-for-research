@@ -45,6 +45,7 @@ const fakeTags = [
 export default function TagsPanel(props) {
   const {
     // tags,
+    topic,
   } = props;
   const tags = fakeTags;
   return sheet({

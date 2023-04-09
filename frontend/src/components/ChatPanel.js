@@ -104,13 +104,25 @@ function ChatCardPair(props) {
         class: "can-select",
         "data-conversation-id": conversation?.conversation_id,
       }, conversation?.answer??""),
-      !conversation?.next_keywords?.length ? null :
-      sheet({sx: {mt: 1}}, [
+      (!conversation?.doc_title?.length) ? null :
+      ty({
+        level: "body2",
+        whiteSpace: "pre-line",
+        mt: 0.75,
+        cursor: "pointer",
+      }, [
+        `信息源：`,
+        ty({color: 'primary'}, `${conversation?.doc_title??""}`),
+      ]),
+      (!conversation?.next_keywords?.length) ? null :
+      sheet({sx: {mt: 0.75}}, [
         ty({
           level: "body3",
           // whiteSpace: "pre-line",
         }, "建议:"),
-        sheet({}, conversation.next_keywords.map((keyword, idx)=>smBtn({variant: "outlined", sx: {mr: 0.5, mt:0.5}}, keyword))),
+        sheet({}, conversation.next_keywords?.map?.((keyword, idx)=>smBtn({
+          variant: "outlined", sx: {mr: 0.5, mt:0.5, fontWeight: "md"}
+        }, keyword))),
       ]),
     ]),
   ]);
@@ -142,11 +154,10 @@ function LoadingCard(props) {
 function ChatList(props) {
   const {
     topic,
+    conversations, set_conversations,
+    loading, set_loading,
     ...otherProps
   } = props;
-
-  const [conversations, set_conversations] = useState([]);
-  const [loading, set_loading] = useState(true);
 
   const loadFn = ()=>{
     const fn = async()=>{
@@ -197,13 +208,20 @@ function ChatList(props) {
 
 
 function TextareaField(props) {
-  const [text, set_text] = React.useState(props?.text??'');
-  React.useEffect(()=>{set_text(props?.text);}, [props?.text]);
+  const {
+    inputText,
+    set_inputText,
+    onChange,
+    onClickButton,
+  } = props;
+  // const [text, set_text] = React.useState(props?.text??'');
+  // React.useEffect(()=>{set_text(props?.text);}, [props?.text]);
   return vNode(FormControl, {}, [
     // vNode(FormLabel, {}, ty({level: 'body3', fontWeight: 'lg'}, 'FreeStyle')),
     vNode(Textarea, {
-      value: text,
-      onChange: (event)=>{set_text(event.target.value);},
+      value: inputText,
+      // onChange: (event)=>{set_inputText(event.target.value);},
+      onChange,
       minRows: 1,
       maxRows: 3,
       // placeholder: 'The quick brown fox jumps over the lazy dog.',
@@ -211,7 +229,7 @@ function TextareaField(props) {
         sx: {ml: 'auto'},
         color: 'primary',
         variant: 'soft',
-        onClick: (event)=>{props?.onClickButton?.(text, event);},
+        onClick: (event)=>{onClickButton?.(inputText, event);},
       }, vNode(SendRoundedIcon)),
     }),
     // vNode(FormHelperText, {}, "Type some sentences and try..."),
@@ -281,11 +299,6 @@ function ToolBar(props) {
         size: 'sm', variant: 'outlined',
         onClick: async()=>{
           set_showTheToolBar(false);
-          // set_showModalHX(true);
-          await backendApi.createNewNote();
-        },
-        onClick: async()=>{
-          set_showTheToolBar(false);
           const m1 = MessagePlugin.info(`正在处理`);
           // set_showModalBQ(true);
           const the_text = selectedObj?.text??"";
@@ -332,30 +345,6 @@ function ToolBar(props) {
   return box({}, [
     theToolBar,
 
-
-    // modal({
-    //   open: showModalHX,
-    //   onClose: ()=>{
-    //     set_showModalHX(false);
-    //   },
-    //   sx: { display: 'flex', justifyContent: 'center', alignItems: 'center' }
-    // }, modalDialog({size: 'sm', sx: {p: 1}}, [
-    //   modalClose({sx: {zIndex: 1}}),
-    //   ty({level: "h5"}, "添加划线笔记"),
-    //   sheet({
-    //     sx: {pt: 1},
-    //   },[
-    //     ty({}, "将以下内容添加到笔记："),
-    //     ty({}, selectedObj?.text??""),
-    //     box({}, [
-    //       hstack({display: "inline-flex", mt:1 , ml: "auto", spacing: 0.5}, [
-    //         smBtn({color:"neutral", variant: "soft", onClick: ()=>{set_showModalHX(false);}}, "取消"),
-    //         smBtn({}, "确定"),
-    //       ]),
-    //     ]),
-    //   ]),
-    // ])),
-
     modal({
       open: showModalPL,
       onClose: ()=>{
@@ -383,34 +372,30 @@ function ToolBar(props) {
         box({}, [
           hstack({display: "inline-flex", mt: 1, ml: "auto", spacing: 0.5}, [
             smBtn({color:"neutral", variant: "soft", onClick: ()=>{set_showModalPL(false);}}, "取消"),
-            smBtn({}, "确定"),
+            smBtn({
+              onClick: async()=>{
+                set_showTheToolBar(false);
+                set_showModalPL(false);
+                const m1 = MessagePlugin.info(`正在处理`);
+                // set_showModalBQ(true);
+                const the_text = selectedObj?.text??"";
+                const sliced = the_text.slice(0,10)+(the_text.length>10?"...":"");
+
+                await backendApi.createNewNote(topic_id, selectedObj?.conversation_id, the_text, selectedObj?.start, selectedObj?.end, commentText).then(()=>{
+                  //
+                  MessagePlugin.close(m1);
+                  MessagePlugin.success(`成功添加笔记“${sliced}”`, 3_000);
+                }).catch(()=>{
+                  //
+                  MessagePlugin.error(`添加笔记“${sliced}”失败！`, 5_000);
+                });
+              },
+            }, "确定"),
           ]),
         ]),
       ]),
     ])),
 
-    modal({
-      open: showModalBQ,
-      onClose: ()=>{
-        set_showModalBQ(false);
-      },
-      sx: { display: 'flex', justifyContent: 'center', alignItems: 'center' }
-    }, modalDialog({size: 'sm', sx: {p: 1}}, [
-      modalClose({sx: {zIndex: 1}}),
-      ty({level: "h5"}, "添加标签"),
-      sheet({
-        sx: {pt: 1},
-      },[
-        ty({}, "将以下内容作为标签添加："),
-        ty({}, selectedObj?.text??""),
-        box({}, [
-          hstack({display: "inline-flex", mt:1 , ml: "auto", spacing: 0.5}, [
-            smBtn({color:"neutral", variant: "soft", onClick: ()=>{set_showModalBQ(false);}}, "取消"),
-            smBtn({}, "确定"),
-          ]),
-        ]),
-      ]),
-    ])),
   ]);
 };
 
@@ -434,7 +419,7 @@ export default function ChatPanel(props) {
   useEffect(()=>{
     const theFn = function() {
       // const selection = window.getSelection();
-      const currentSelection = rangy.getSelection();
+      const currentSelection = rangy?.getSelection?.();
 
       if (
         (Array.from(currentSelection?.anchorNode?.parentElement?.classList).includes("can-select"))
@@ -500,6 +485,11 @@ export default function ChatPanel(props) {
     console.log("rangy:\n", rangy);
   }, []);
 
+  const [inputText, set_inputText] = useState("");
+
+  const [conversations, set_conversations] = useState([]);
+  const [conversationsLoading, set_conversationsLoading] = useState(true);
+
 
   return vstack({
     ...otherProps,
@@ -508,6 +498,11 @@ export default function ChatPanel(props) {
   }, [
     vNode(ChatList, {
       topic,
+      conversations,
+      set_conversations,
+      loading: conversationsLoading,
+      set_loading: set_conversationsLoading,
+
       sx: {
         flexGrow: 1,
         flexShrink: 1,
@@ -519,8 +514,32 @@ export default function ChatPanel(props) {
         padding: 1,
       },
     }, vNode(TextareaField, {
-      text: "",
-      onClickButton: (text, event)=>{},
+      inputText,
+      set_inputText,
+      onChange: (event)=>{
+        const newVal = event?.target?.value;
+        // console.log(newVal);
+        set_inputText(newVal);
+      },
+      onClickButton: async(text, event)=>{
+        console.log("\nonClickButton\n");
+        const m1 = MessagePlugin.info(`正在处理`);
+        try {
+          const resp = await backendApi.createNewConversation("question", topic?.topic_id, null, text);
+          console.log(resp);
+          console.log(resp?.data);
+
+          const newConversations = [...conversations, resp?.data];
+          set_conversations(newConversations);
+          //
+          MessagePlugin.close(m1);
+          // MessagePlugin.success(`成功添加笔记“${sliced}”`, 3_000);
+          set_inputText("");
+        } catch(error) {
+          console.log(error);
+          MessagePlugin.error(`发生错误！`, 5_000);
+        };
+      },
     })),
     vNode(ToolBar, {
       topic_id: topic?.topic_id,

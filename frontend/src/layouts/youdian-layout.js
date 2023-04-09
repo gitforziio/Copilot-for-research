@@ -47,11 +47,16 @@ import { backendApi } from '../api/backend';
 
 
 function RightPanel(props) {
-  const {onClickLoadingArea} = props;
+  const {
+    // onClickLoadingArea,
+    topic,
+  } = props;
   const rightSideArea = sheet({
+    id: "rightSideArea",
     sx: {
       height: "100%",
-      minWidth: "320px",
+      // minWidth: "320px",
+      width: "320px",
     },
   }, vstack({
     height: "100%",
@@ -80,13 +85,13 @@ function RightPanel(props) {
       ]),
       tabPanel({
         value: 0,
-      }, vNode(TagsPanel)),
+      }, vNode(TagsPanel, {topic})),
       tabPanel({
         value: 1,
-      }, vNode(GraphPanel)),
+      }, vNode(GraphPanel, {topic})),
       tabPanel({
         value: 2,
-      }, vNode(NotesPanel)),
+      }, vNode(NotesPanel, {topic})),
     ]),)
   ]));
   return rightSideArea;
@@ -165,7 +170,9 @@ function TabArea(props) {
         flexShrink: 1,
         flexBasis: "auto",
       }, []),
-      vNode(RightPanel, {}),
+      vNode(RightPanel, {
+        topic: panel?.topic,
+      }),
     ])])),
   ]);
 
@@ -202,39 +209,6 @@ export default function YoudianLayout(props) {
   }, vNode(TabArea, {onClickLoadingArea}));
 
 
-
-
-
-
-
-  // const layout = grid({
-  //   container: true,
-  //   sx: {
-  //     flexGrow: 1,
-  //     height: "100vh",
-  //     overflow: "auto",
-  //   },
-  // }, [
-
-  //   grid({xs: 9}, [
-  //     box({
-  //       id: "layoutLeft",
-  //       height: "100vh",
-  //       display: "flex",
-  //       flexDirection: "column",
-  //     }, theMainArea),
-  //   ]),
-
-  //   grid({xs: 3}, [
-  //     box({
-  //       id: "layoutRight",
-  //       height: "100vh",
-  //       display: "flex",
-  //       flexDirection: "column",
-  //     }, rightSideArea),
-  //   ]),
-
-  // ]);
 
   const layout = box({
     id: "layoutMain",

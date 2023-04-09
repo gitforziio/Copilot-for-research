@@ -40,6 +40,7 @@ function NoteCard(props) {
 export default function NotesPanel(props) {
   const {
     // notes,
+    topic,
   } = props;
 
   const [loading, set_loading] = useState(true);
@@ -48,7 +49,7 @@ export default function NotesPanel(props) {
 
   useEffect(()=>{
     const fn = async()=>{
-      const resp = await backendApi.getTopicNotes("1");
+      const resp = await backendApi.getTopicNotes(topic?.topic_id);
       console.log(resp);
       const got_notes = resp?.data??[];
       console.log(got_notes);
