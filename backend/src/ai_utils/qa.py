@@ -1,4 +1,3 @@
-# %load qa.py
 import os
 import openai
 from langchain.llms import OpenAI
@@ -7,7 +6,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Pinecone
 from langchain.document_loaders import TextLoader
-openai_api_key = "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"
+openai_api_key = "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"
 openai.api_key = openai_api_key
 index_name = "ydwh-openai-langchain-1000-800"
 import pinecone 
@@ -53,17 +52,61 @@ def doc_search(query,index_name,k=1):
     results = docsearch.similarity_search(query, k=k)
     return results
 
-def get_answer(question, index_name = index_name):
+def get_contextbased_answer_notlangchain(context,question):
+    prompt_template = """
+    请使用以下背景信息来回答最后的问题。如果你不知道答案，请直接说你不知道，不要试图编造答案。
+    {context}
+    问题：{question}
+    有帮助的答案："""
+    completion = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "user", "content": prompt_template.format(context=context,question = question)}
+    ]
+    )
+
+    return completion.choices[0].message['content']
+
+
+
+def get_answer(question, index_name = index_name, mode = 'langchain'):
     results = doc_search(question, index_name)
     llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
-    chain = load_qa_chain(llm, chain_type="stuff")
-    return results[0].metadata['source'], chain.run(input_documents=results, question=question)
+    if mode == 'langchain':
+        chain = load_qa_chain(llm, chain_type="stuff")
+        answer = chain.run(input_documents=results, question=question)
+    else:
+        answer = get_contextbased_answer_notlangchain(results[0].page_content,question)
+    follow_up = get_followup_keywords(question,answer,results[0].page_content)
+    return results[0].metadata['source'], answer, follow_up
 
-def ai_answer(question):
-    path, answer = get_answer(question)
+def get_followup_keywords(question,answer,context):
+    prompt_template = """
+    假设你是一个古汉语古文献领域的研究者。请根据你的知识和关注重点，根据以下的背景文本，以及上一轮的问答，提出5个接下来想继续深入研究的实体，每个限制6个字以内。
+    背景文本：
+    ----
+    {context}
+    ----
+    上一轮问题：{question}
+    上一轮回答：{answer}
+    
+    输出格式如下：
+    序号:词或短语
+    """
+    completion = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "user", "content": prompt_template.format(context=context,question = question,answer = answer)}
+    ]
+    )
+
+    return completion.choices[0].message['content']
+
+def ai_answer(question,mode = 'langchain'):
+    path, answer,follow_up = get_answer(question,mode = mode)
     file_name = path.split("/")[-1]
-    return {"file_name":file_name, "answer":answer}
-
+    follow_ups = [x.split(": ")[-1] for x in follow_up.split("\n")]
+    return {"file_name":file_name, "answer":answer,"follow_up":follow_ups}
 if __name__ == "__main__":
     # enhance_vector(dir_path = "data",index_name = index_name)
-    print(ai_answer("永乐大典正本可能的下落在哪里？"))
+    print(ai_answer("《永乐大典》的成书时间是？"))
