@@ -58,7 +58,7 @@ def get_topic_conversations(topic_id):
     #         "topic_id": 1,
     #         "doc_id": 1,
     #         "question": "fake question",
-    #         "anwser": "fake anwser",
+    #         "answer": "fake answer",
     #         "next_keywords": ["fake keyword"],
     #         "tags": [
     #             {
@@ -125,7 +125,7 @@ def create_conversation():
     #     "conversation_type": "Full",
     #     "doc_id": 1,
     #     "question": "fake question",
-    #     "anwser": "fake anwser",
+    #     "answer": "fake answer",
     #     "next_keywords": ["fake keyword"],
     #     "tags": [
     #         {
