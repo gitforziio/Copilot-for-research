@@ -7,7 +7,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Pinecone
 from langchain.document_loaders import TextLoader
-openai_api_key = "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"
+openai_api_key = "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"
 openai.api_key = openai_api_key
 index_name = "ydwh-openai-langchain-1000-800"
 import pinecone 
@@ -57,9 +57,13 @@ def get_answer(question, index_name = index_name):
     results = doc_search(question, index_name)
     llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
     chain = load_qa_chain(llm, chain_type="stuff")
-    return results[0].metadata['source'], chain.run(input_documents=results, question=question)}
+    return results[0].metadata['source'], chain.run(input_documents=results, question=question)
 
 def ai_answer(question):
     path, answer = get_answer(question)
     file_name = path.split("/")[-1]
     return {"file_name":file_name, "answer":answer}
+
+if __name__ == "__main__":
+    # enhance_vector(dir_path = "data",index_name = index_name)
+    print(ai_answer("永乐大典正本可能的下落在哪里？"))
