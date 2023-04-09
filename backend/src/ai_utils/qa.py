@@ -54,7 +54,8 @@ def doc_search(query,index_name,k=1):
 
 def get_contextbased_answer_notlangchain(context,question):
     prompt_template = """
-    请使用以下背景信息来回答最后的问题。如果你不知道答案，请直接说你不知道，不要试图编造答案。
+    请使用以下背景信息来回答最后的问题。如果你不知道答案，请说“根据当前的文档集，无法得出相关信息。这里只提供最相关的文档”。
+    请用中文回答。
     {context}
     问题：{question}
     有帮助的答案："""
