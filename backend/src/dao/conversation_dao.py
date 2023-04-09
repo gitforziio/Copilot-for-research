@@ -32,17 +32,18 @@ class ConversationDao():
             ret.append(ele)
         return ret
     
-    def insert_conversation(self, conversation_type, topic_id, doc_id, question, answer, next_keywords, tags):
+    def insert_conversation(self, conversation_type, topic_id, doc_id, doc_title, question, answer, next_keywords, tags):
         doc_id = doc_id or "NULL"
         question = ("\"%s\"" % question) if question else "NULL"
         answer = ("\"%s\"" % answer) if answer else "NULL"
         next_keywords = ",".join(next_keywords or [])
+        doc_title = ("\"%s\"" % doc_title) if doc_title else "NULL"
         tag_ids = ",".join([str(_) for _ in tag_dao.name_to_ids(tags or [])])
 
-        vals = tuple([conversation_type, str(topic_id), str(doc_id), question, answer, next_keywords, tag_ids])
+        vals = tuple([conversation_type, str(topic_id), str(doc_id), doc_title, question, answer, next_keywords, tag_ids])
 
-        sql = """INSERT INTO conversation (type, topic_id, document_id, question, answer, next_keywords, tag_ids)
-        VALUES ("%s", %s, %s, %s, %s, "%s", "%s")""" % vals
+        sql = """INSERT INTO conversation (type, topic_id, document_id, document_title, question, answer, next_keywords, tag_ids)
+        VALUES ("%s", %s, %s, %s, %s, %s, "%s", "%s")""" % vals
         row = insert("conversation", sql)
 
         ret = Conversation(
@@ -52,8 +53,9 @@ class ConversationDao():
             row[3],
             row[4],
             row[5],
-            row[6] or [],
+            row[6],
             row[7] or [],
-            int(row[9].timestamp())
+            row[8] or [],
+            int(row[10].timestamp())
         )
         return ret

@@ -7,6 +7,7 @@ from dao.conversation_dao import ConversationDao
 from dao.note_dao import NoteDao
 from dao.document_dao import DocumentDao
 from utils import get_nullable, get_json_from_request
+from ai_utils.qa import ai_answer
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
@@ -108,6 +109,7 @@ def create_conversation():
     doc_id = get_nullable(data, 'doc_id')
     question = get_nullable(data, 'question')
 
+    doc_title = None
     if type == "full":
         answer = document_dao.get_full_document(doc_id)
         next_keywords, tags = [], []
@@ -116,9 +118,16 @@ def create_conversation():
         next_keywords, tags = [], []
     else:
         # TODO: get answer from AI
-        answer, next_keywords, tags = None, [], []
+        ai_response = ai_answer(question)
+        # ai_response = {
+        #     "file_name": "fake_fn.txt",
+        #     "answer": "fake answer"
+        # }
+        filename = ai_response['file_name']
+        doc_title = filename[:-4]
+        answer, next_keywords, tags = ai_response['answer'], [], []
 
-    ret = conversation_dao.insert_conversation(type, topic_id, doc_id, question, answer, next_keywords, tags)
+    ret = conversation_dao.insert_conversation(type, topic_id, doc_id, doc_title, question, answer, next_keywords, tags)
     return ret.__dict__
     # return {
     #     "conversation_id": 1,
@@ -144,7 +153,7 @@ def create_note():
 
     topic_id = data['topic_id']
     conversation_id = get_nullable(data, 'conversation_id')
-    note_id = get_nullable(data, 'note_id')
+    # note_id = get_nullable(data, 'note_id')
     text = get_nullable(data, 'text')
     text_start = get_nullable(data, 'text_start')
     text_end = get_nullable(data, 'text_end')
