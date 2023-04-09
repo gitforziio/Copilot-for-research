@@ -34,4 +34,5 @@ def insert(table, sql):
     read_sql = "select * from %s where id = %d" % (table, result)
     cursor.execute(read_sql)
     row = cursor.fetchall()[0]
+    cursor.close()
     return row
