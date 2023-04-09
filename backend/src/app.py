@@ -7,6 +7,7 @@ from dao.conversation_dao import ConversationDao
 from dao.note_dao import NoteDao
 from dao.document_dao import DocumentDao
 from utils import get_nullable, get_json_from_request
+from ai_utils.qa import ai_answer
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
@@ -116,7 +117,9 @@ def create_conversation():
         next_keywords, tags = [], []
     else:
         # TODO: get answer from AI
-        answer, next_keywords, tags = None, [], []
+        ai_response = ai_answer(question)
+        filename = ai_response['file_name']
+        answer, next_keywords, tags = ai_response['answer'], [], []
 
     ret = conversation_dao.insert_conversation(type, topic_id, doc_id, question, answer, next_keywords, tags)
     return ret.__dict__

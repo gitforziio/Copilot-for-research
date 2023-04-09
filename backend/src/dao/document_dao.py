@@ -15,7 +15,7 @@ class DocumentDao():
     def get_all_under_tag(self, tag_id):
         rows = query("""
         select a.id, title, UNIX_TIMESTAMP(a.last_modified_time) ts
-        from document  a join tag_document b 
+        from document a join tag_document b 
         where a.id = b.document_id and b.tag_id = %s
         """ % str(tag_id))
         ret = []

@@ -32,7 +32,7 @@ class ConversationDao():
             ret.append(ele)
         return ret
     
-    def insert_conversation(self, conversation_type, topic_id, doc_id, question, answer, next_keywords, tags):
+    def insert_conversation(self, conversation_type, topic_id, doc_id, doc_title, question, answer, next_keywords, tags):
         doc_id = doc_id or "NULL"
         question = ("\"%s\"" % question) if question else "NULL"
         answer = ("\"%s\"" % answer) if answer else "NULL"
@@ -50,6 +50,7 @@ class ConversationDao():
             row[1],
             row[2],
             row[3],
+            doc_title,
             row[4],
             row[5],
             row[6] or [],
