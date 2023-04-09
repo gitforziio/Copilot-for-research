@@ -118,7 +118,15 @@ def create_conversation():
         next_keywords, tags = [], []
     else:
         # TODO: get answer from AI
-        ai_response = ai_answer(question)
+        try:
+            ai_response = ai_answer(question)
+        except Exception as e:
+            print(e)
+            ai_response = {
+                "file_name": None,
+                "answer": "AI正忙",
+                "follow_up": []
+            }
         # ai_response = {
         #     "file_name": "fake_fn.txt",
         #     "answer": "fake answer"
