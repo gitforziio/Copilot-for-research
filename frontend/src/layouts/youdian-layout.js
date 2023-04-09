@@ -54,12 +54,16 @@ function RightPanel(props) {
   const rightSideArea = sheet({
     id: "rightSideArea",
     sx: {
+      display: "flex",
       height: "100%",
       // minWidth: "320px",
       width: "320px",
     },
   }, vstack({
     height: "100%",
+    width: "100%",
+    flexGrow: 1,
+    flexShrink: 1,
   }, [
 
     vNode(PersonalDbCorner, {}),
@@ -70,11 +74,15 @@ function RightPanel(props) {
       sx: {
         m: 1,
         flexGrow: 1,
+        flexShrink: 1,
         boxShadow: "none",
       },
     }, tabs({
       size: "sm",
       defaultValue: 0,
+      sx: {
+        display: "flex",
+      },
     }, [
       tabList({
         size: "sm",
@@ -84,12 +92,27 @@ function RightPanel(props) {
         tab({}, [vNode(ListItemDecorator, null, vNode(BookmarkBorderRoundedIcon)), "笔记"]),
       ]),
       tabPanel({
+        sx: {
+          flexGrow: 1,
+          flexShrink: 1,
+          overflow: "auto",
+        },
         value: 0,
       }, vNode(TagsPanel, {topic})),
       tabPanel({
+        sx: {
+          flexGrow: 1,
+          flexShrink: 1,
+          overflow: "auto",
+        },
         value: 1,
       }, vNode(GraphPanel, {topic})),
       tabPanel({
+        sx: {
+          flexGrow: 1,
+          flexShrink: 1,
+          overflow: "auto",
+        },
         value: 2,
       }, vNode(NotesPanel, {topic})),
     ]),)
