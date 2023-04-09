@@ -2,3 +2,6 @@ flask
 flask_cors
 mysql-connector-python
 gunicorn
+langchain==0.0.134
+pinecone-client=2.2.1
+tiktoken==0.3.3
