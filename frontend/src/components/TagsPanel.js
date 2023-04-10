@@ -6,6 +6,8 @@ import { sortBy } from 'lodash';
 
 import CircularProgress from '@mui/joy/CircularProgress';
 
+import { DialogPlugin } from 'tdesign-react';
+
 
 import {
   children,
@@ -71,7 +73,26 @@ export default function TagsPanel(props) {
         mt: "2em",
       },
     })),
-  ] : tags.map((tag, idx)=>smOutlinedCard({}, [
+  ] : tags.map((tag, idx)=>smOutlinedCard({
+    sx: {
+      cursor: "pointer",
+    },
+    onClick: ()=>{
+      const alertDia = DialogPlugin.alert({
+        header: '功能开发中',
+        body: '敬请期待！',
+        confirmBtn: {
+          content: '好的',
+        },
+        onConfirm: ({ e }) => {
+          alertDia.hide();
+        },
+        onClose: ({ e, trigger }) => {
+          alertDia.hide();
+        },
+      });
+    },
+  }, [
     `${tag?.tag_name??"<未命名标签>"} (${tag?.doc_count??0})`
   ]))));
 };

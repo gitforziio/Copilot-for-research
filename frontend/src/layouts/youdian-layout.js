@@ -58,6 +58,7 @@ function RightPanel(props) {
       height: "100%",
       // minWidth: "320px",
       width: "320px",
+      pl: 0.6,
     },
   }, vstack({
     height: "100%",
@@ -72,7 +73,7 @@ function RightPanel(props) {
       // size: "sm",
       // variant: "outlined",
       sx: {
-        m: 1,
+        mb: 0.6,
         flexGrow: 1,
         flexShrink: 1,
         overflow: "auto",

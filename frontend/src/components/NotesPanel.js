@@ -23,6 +23,7 @@ import {
 
 import { backendApi } from '../api/backend';
 
+import { DialogPlugin } from 'tdesign-react';
 
 function NoteCard(props) {
   const {
@@ -84,5 +85,30 @@ export default function NotesPanel(props) {
         mt: "2em",
       },
     })),
-  ] : notes.map((note, idx)=>vNode(NoteCard, {note, key: `note-${idx}`}))));
+  ] : [
+    ...notes.map((note, idx)=>vNode(NoteCard, {note, key: `note-${idx}`})),
+    smOutlinedCard({
+      color: "primary",
+      sx: {
+        textAlign: "center",
+        fontWeight: "lg",
+        cursor: "pointer",
+      },
+      onClick: ()=>{
+        const alertDia = DialogPlugin.alert({
+          header: '功能开发中',
+          body: '敬请期待！',
+          confirmBtn: {
+            content: '好的',
+          },
+          onConfirm: ({ e }) => {
+            alertDia.hide();
+          },
+          onClose: ({ e, trigger }) => {
+            alertDia.hide();
+          },
+        });
+      },
+    }, "总结我的笔记"),
+  ],));
 };

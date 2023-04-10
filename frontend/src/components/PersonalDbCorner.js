@@ -6,6 +6,10 @@ import { cloneDeep } from 'lodash';
 import TopicsPanel from '../components/TopicsPanel';
 import ChatPanel from '../components/ChatPanel';
 
+// import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
+import UploadRoundedIcon from '@mui/icons-material/UploadRounded';
+
+import { DialogPlugin } from 'tdesign-react';
 
 import {
   children,
@@ -21,6 +25,8 @@ import {
   modal,
   toolBtn,
   blkBtn,
+  smBtn,
+  smIconBtn,
 } from '../lib/v-dom-joy';
 
 
@@ -43,8 +49,34 @@ const fakeTags = [
 ];
 
 export default function PersonalDbCorner(props) {
-  return box({
-    py: 2,
-    textAlign: "center",
-  }, ["个人数据库 · 共12370篇"]);
+  return sheet({}, hstack({
+    pt: 2,
+    pb: 1.6,
+    spacing: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  }, [
+    box({
+      textAlign: "center",
+    }, ["个人数据库 · 共12370篇"]),
+    box({}, smIconBtn({
+      variant: "plain",
+      color: "neutral",
+      onClick: ()=>{
+        const alertDia = DialogPlugin.alert({
+          header: '功能开发中',
+          body: '敬请期待！',
+          confirmBtn: {
+            content: '好的',
+          },
+          onConfirm: ({ e }) => {
+            alertDia.hide();
+          },
+          onClose: ({ e, trigger }) => {
+            alertDia.hide();
+          },
+        });
+      },
+    }, vNode(UploadRoundedIcon))),
+  ]))
 };
