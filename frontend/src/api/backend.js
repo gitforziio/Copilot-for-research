@@ -12,6 +12,7 @@ export class BackendApi {
   constructor() {}
 
   async getAllTopics() {
+    console.log("getAllTopics");
     try {
       const resp = await apiAxios.get(`topic/all`);
       return resp;
@@ -22,56 +23,61 @@ export class BackendApi {
     };
   }
   async getTopicNotes(topicId) {
+    console.log("getTopicNotes");
     return apiAxios.get(`topic/${topicId}/notes`);
   }
   async getTopicTags(topicId) {
+    console.log("getTopicTags");
     return apiAxios.get(`topic/${topicId}/tags`);
   }
   async getTopicConversations(topicId) {
+    console.log("getTopicConversations");
     // return apiAxios.get(`topic/${topicId}/conversations`);
     try {
       // bad;
       const resp = await apiAxios.get(`topic/${topicId}/conversations`);
       return resp;
     } catch(error) {
-      console.log("");
-      return {data: [
-        {
-          conversation_id: 1,
-          conversation_type: "question",
-          doc_id: 2,
-          question: "五六七八",
-          answer: "一二三四",
-          next_keywords: ["为什么", "好的呀", "东南西看看情况", "东南西看看情况", "东南西看看情况", "东南西看看情况"],
-          tags: [{"id": 1, "name": "好呀"}],
-          last_modified_ts: 1680951958,
-        },
-        {
-          conversation_id: 1,
-          conversation_type: "summary",
-          doc_id: 2,
-          question: "五六七八",
-          answer: "一二三四",
-          next_keywords: ["为什么", "好的呀", "东南西看看情况", "东南西看看情况", "东南西看看情况", "东南西看看情况"],
-          tags: [{"id": 1, "name": "好呀"}],
-          last_modified_ts: 1680951958,
-        },
-        {
-          conversation_id: 1,
-          conversation_type: "full",
-          doc_id: 2,
-          question: "五六七八",
-          answer: (`${"一二三四一二三四，一二三四".repeat(10)}。\n`.repeat(10)),
-          next_keywords: ["为什么", "好的呀", "东南西看看情况", "东南西看看情况", "东南西看看情况", "东南西看看情况"],
-          tags: [{"id": 1, "name": "好呀"}],
-          last_modified_ts: 1680951958,
-        },
-      ]};
+      throw error;
+      // console.log("");
+      // return {data: [
+      //   {
+      //     conversation_id: 1,
+      //     conversation_type: "question",
+      //     doc_id: 2,
+      //     question: "五六七八",
+      //     answer: "一二三四",
+      //     next_keywords: ["为什么", "好的呀", "东南西看看情况", "东南西看看情况", "东南西看看情况", "东南西看看情况"],
+      //     tags: [{"id": 1, "name": "好呀"}],
+      //     last_modified_ts: 1680951958,
+      //   },
+      //   {
+      //     conversation_id: 1,
+      //     conversation_type: "summary",
+      //     doc_id: 2,
+      //     question: "五六七八",
+      //     answer: "一二三四",
+      //     next_keywords: ["为什么", "好的呀", "东南西看看情况", "东南西看看情况", "东南西看看情况", "东南西看看情况"],
+      //     tags: [{"id": 1, "name": "好呀"}],
+      //     last_modified_ts: 1680951958,
+      //   },
+      //   {
+      //     conversation_id: 1,
+      //     conversation_type: "full",
+      //     doc_id: 2,
+      //     question: "五六七八",
+      //     answer: (`${"一二三四一二三四，一二三四".repeat(10)}。\n`.repeat(10)),
+      //     next_keywords: ["为什么", "好的呀", "东南西看看情况", "东南西看看情况", "东南西看看情况", "东南西看看情况"],
+      //     tags: [{"id": 1, "name": "好呀"}],
+      //     last_modified_ts: 1680951958,
+      //   },
+      // ]};
     };
   }
 
 
   async createNewTag(topicId, tag_name) {
+    console.log("createNewTag");
     const resp = await apiAxios.post(`tag/create`, {
       topic_id: topicId,
       tag_name
@@ -79,6 +85,7 @@ export class BackendApi {
     return resp;
   }
   async createNewNote(topic_id, conversation_id, text, text_start, text_end, comment) {
+    console.log("createNewNote");
     // topic_id: Required
     // conversation_id: Optional,
     // text: Option String
@@ -92,6 +99,7 @@ export class BackendApi {
     return resp;
   }
   async createNewConversation(type, topic_id, doc_id, question) {
+    console.log("createNewConversation");
     // type: full/summary/question,
     // topic_id,
     // doc_id: Optional

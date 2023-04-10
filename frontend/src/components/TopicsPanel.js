@@ -58,59 +58,6 @@ export default function (props) {
   const loading = GlobalStateManagerValtio.$snapshot.value.allTopicsLoading;
   const topics = GlobalStateManagerValtio.$snapshot.value.allTopics;
 
-  // useEffect(()=>{
-  //   const fn = async()=>{
-  //     const resp = await backendApi.getAllTopics().catch((reason)=>{
-  //       console.log(reason);
-  //       return fakeTopics;
-  //     });
-  //     console.log(resp);
-  //     const got_topics = resp?.data??[];
-  //     console.log(got_topics);
-  //     set_topics(got_topics);
-  //     set_loading(false);
-  //   };
-  //   fn();
-  // }, []);
-
-
-
-
-  // useEffect(()=>{
-  //   const globalState = GlobalStateManagerValtio.proxy;
-  //   console.log(globalState?.value?.allTopicsLoading);
-  //   console.log(JSON.stringify(globalState?.value?.allTopicsLoading));
-  //   console.log(JSON.stringify(GlobalStateManagerValtio.proxy, null, 2));
-  //   const subscribe = GlobalStateManagerValtio.valtio.subscribe;
-  //   const unsubscribe_allTopicsLoading = subscribe(globalState?.value?.allTopicsLoading, ()=>{
-  //     console.log('happy');
-  //   });
-  //   return (()=>{unsubscribe_allTopicsLoading();});
-
-
-  //   // const unsubscribe_allTopicsLoading = GlobalStateManagerValtio.valtio.subscribe(globalState?.value?.allTopicsLoading, ()=>{
-  //   //   set_loading(cloneDeep(globalState?.value?.allTopicsLoading)??true);
-  //   // });
-  //   // return (()=>{unsubscribe_allTopicsLoading();});
-  // }, []);
-
-
-  // useEffect(()=>{
-  //   const globalState = GlobalStateManagerValtio.proxy;
-  //   const unsubscribe_allTopicsLoading = GlobalStateManagerValtio.valtio.subscribe(globalState.value.allTopicsLoading, ()=>{
-  //     // set_loading(cloneDeep(globalState.value.allTopicsLoading)??true);
-  //   });
-  //   const unsubscribe_allTopics = GlobalStateManagerValtio.valtio.subscribe(globalState.value.allTopics, ()=>{
-  //     // set_topics(cloneDeep(globalState.value.allTopics)??[]);
-  //     // set_loading(false);
-  //   });
-  //   return (()=>{
-  //     unsubscribe_allTopicsLoading();
-  //     unsubscribe_allTopics();
-  //   });
-  // }, []);
-
-
 
 
   return sheet({

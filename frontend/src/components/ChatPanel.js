@@ -50,9 +50,27 @@ const rangeSelector = new RangeSelector();
 
 
 
+
+
+const 滚下去 = (delay=10)=>{
+  setTimeout(()=>{
+    console.log("滚下去");
+    const element = document?.getElementById?.("chatList");
+    // console.log(element?.scrollHeight);
+    element?.scrollTo({
+      top: element?.scrollHeight,
+      behavior: "smooth"
+    });
+  }, delay);
+};
+
+
+
+
 function ChatInformationCard(props) {
   const {
     topic,
+    onSend,
   } = props;
   return box({}, card({
     variant: "soft",
@@ -72,6 +90,7 @@ function ChatCardPair(props) {
   const {
     conversation,
     idx,
+    onSend,
   } = props;
 
   return vstack({spacing: 2}, [
@@ -89,6 +108,24 @@ function ChatCardPair(props) {
         whiteSpace: "pre-line",
       }, conversation?.question??""),
     ]),
+    conversation?.isTmp ? 
+    card({
+      variant: "outlined",
+      color: "neutral",
+      size: "sm",
+      sx: {
+        maxWidth: "800px",
+        mr: "auto",
+      },
+    }, vNode(CircularProgress, {
+      variant: "soft",
+      sx: {
+        display: "flex",
+        mx: "auto",
+        my: "1em",
+      },
+    }))
+    :
     card({
       variant: "outlined",
       color: "neutral",
@@ -103,7 +140,7 @@ function ChatCardPair(props) {
         whiteSpace: "pre-line",
         class: "can-select",
         "data-conversation-id": conversation?.conversation_id,
-      }, conversation?.answer??""),
+      }, conversation?.answer?.length ? conversation?.answer : conversation?.conversation_type=="summary" ? "暂无此信息源相关内容" : ""),
       (!conversation?.doc_title?.length) ? null :
       ty({
         level: "body2",
@@ -112,16 +149,24 @@ function ChatCardPair(props) {
         cursor: "pointer",
       }, [
         `信息源：`,
-        ty({color: 'primary'}, `${conversation?.doc_title??""}`),
+        ty({
+          color: 'primary', sx: {cursor: "pointer"},
+          onClick: ()=>{
+            onSend(`关于 ${conversation?.doc_title}`, "summary", conversation?.doc_id);
+          },
+        }, `${conversation?.doc_title??""}`),
       ]),
       (!conversation?.next_keywords?.length) ? null :
       sheet({sx: {mt: 0.75}}, [
         ty({
           level: "body3",
           // whiteSpace: "pre-line",
-        }, "建议:"),
+        }, "你可能还想了解:"),
         sheet({}, conversation.next_keywords?.map?.((keyword, idx)=>smBtn({
-          variant: "outlined", sx: {mr: 0.5, mt:0.5, fontWeight: "md"}
+          variant: "outlined", sx: {mr: 0.5, mt:0.5, fontWeight: "md"},
+          onClick: ()=>{
+            onSend(keyword, "question");
+          },
         }, keyword))),
       ]),
     ]),
@@ -156,10 +201,16 @@ function ChatList(props) {
     topic,
     conversations, set_conversations,
     loading, set_loading,
+
+    onSend,
+
     ...otherProps
   } = props;
 
+  const loadedOnce = useRef(null);
   const loadFn = ()=>{
+    if (loadedOnce.current) {return;};
+    loadedOnce.current = true;
     const fn = async()=>{
       console.log('loading chat');
       const resp = await backendApi.getTopicConversations(topic?.topic_id);
@@ -168,6 +219,7 @@ function ChatList(props) {
       console.log(got_conversations);
       set_conversations(got_conversations);
       set_loading(false);
+      // 滚下去(1000);
     };
     fn();
   };
@@ -178,6 +230,7 @@ function ChatList(props) {
 
   return container({
     ...otherProps,
+    id: "chatList",
   }, [
     sheet({
       sx: {
@@ -191,6 +244,7 @@ function ChatList(props) {
 
       vNode(ChatInformationCard, {
         topic: topic,
+        onSend,
       }),
 
       ... loading ? [vNode(LoadingCard, {
@@ -200,6 +254,7 @@ function ChatList(props) {
         id: `conversation-${topic?.topic_id}[${idx}]-${conversation.conversation_id}`,
         conversation,
         idx,
+        onSend,
       })),
 
     ])),
@@ -416,8 +471,48 @@ export default function ChatPanel(props) {
 
 
 
+
+
+  const onSend = async(text, type="question", doc_id, event)=>{
+    console.log("\nonClickButton\n");
+    const m1 = MessagePlugin.info(`正在处理`);
+    try {
+      const history = [...conversations];
+
+      const tmpConversations = [...history, {
+        isTmp: true,
+        question: text,
+      }];
+      set_conversations(tmpConversations);
+      set_inputText("");
+
+      滚下去();
+
+
+      const resp = await backendApi.createNewConversation(type, topic?.topic_id, doc_id, text);
+      console.log(resp);
+      console.log(resp?.data);
+
+      const newConversations = [...history, resp?.data];
+      set_conversations(newConversations);
+      //
+      MessagePlugin.close(m1);
+      // MessagePlugin.success(`成功添加笔记“${sliced}”`, 3_000);
+      set_inputText("");
+      滚下去();
+    } catch(error) {
+      console.log(error);
+      MessagePlugin.error(`发生错误！`, 5_000);
+      滚下去();
+    };
+  };
+
+
+  const loadedOnce = useRef(null);
   useEffect(()=>{
     const theFn = function() {
+      // if (loadedOnce.current) {return;};
+      // loadedOnce.current = true;
       // const selection = window.getSelection();
       const currentSelection = rangy?.getSelection?.();
 
@@ -462,6 +557,8 @@ export default function ChatPanel(props) {
 
     };
     const theFn2 = function(event) {
+      // if (loadedOnce.current) {return;};
+      // loadedOnce.current = true;
       //
       // const currentSelection = rangy.getSelection();
       // const selected = !!currentSelection?.toString?.()?.length;
@@ -503,6 +600,8 @@ export default function ChatPanel(props) {
       loading: conversationsLoading,
       set_loading: set_conversationsLoading,
 
+      onSend,
+
       sx: {
         flexGrow: 1,
         flexShrink: 1,
@@ -521,25 +620,7 @@ export default function ChatPanel(props) {
         // console.log(newVal);
         set_inputText(newVal);
       },
-      onClickButton: async(text, event)=>{
-        console.log("\nonClickButton\n");
-        const m1 = MessagePlugin.info(`正在处理`);
-        try {
-          const resp = await backendApi.createNewConversation("question", topic?.topic_id, null, text);
-          console.log(resp);
-          console.log(resp?.data);
-
-          const newConversations = [...conversations, resp?.data];
-          set_conversations(newConversations);
-          //
-          MessagePlugin.close(m1);
-          // MessagePlugin.success(`成功添加笔记“${sliced}”`, 3_000);
-          set_inputText("");
-        } catch(error) {
-          console.log(error);
-          MessagePlugin.error(`发生错误！`, 5_000);
-        };
-      },
+      onClickButton: onSend,
     })),
     vNode(ToolBar, {
       topic_id: topic?.topic_id,

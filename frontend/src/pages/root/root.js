@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import vNode from '../../lib/vue-to-react';
 import Lodash_pick from 'lodash/pick';
 
@@ -52,13 +52,34 @@ export default function Root(props) {
 
   const globalState$proxy = GlobalStateManagerValtio.$proxy;
 
+  const [firstLoaded, set_firstLoaded] = useState(false);
+
+  const cache = useRef(null);
+  const loadedOnce = useRef(null);
+
   // const globalState = GlobalStateManagerValtio.proxy;
   const loadFn = ()=>{
+    let done = false;
+    if (firstLoaded) {return;};
+
     const fn = async()=>{
+      set_firstLoaded(true);
+      if (done) {return;};
+      if (loadedOnce.current) {return;};
+      loadedOnce.current = true;
       console.log('loading');
       const globalState = GlobalStateManagerValtio.proxy;
-      const resp = await backendApi.getAllTopics();
-      console.log(resp);
+      let resp;
+      if (!cache.current) {
+        console.log('flag1 a');
+        resp = await backendApi.getAllTopics();
+        cache.current = resp;
+        set_firstLoaded(true);
+      } else {
+        console.log('flag1 b');
+        resp = cache.current;
+        console.log(resp);
+      };
       const got_topics = resp?.data??[];
       console.log(got_topics);
 
@@ -75,6 +96,11 @@ export default function Root(props) {
       globalState$proxy.value.allTopicsLoading = false;
     };
     fn();
+
+    return ()=>{
+      set_firstLoaded(true);
+      done=true;
+    };
   };
   useEffect(loadFn, []);
 

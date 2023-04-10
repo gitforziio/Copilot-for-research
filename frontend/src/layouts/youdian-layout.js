@@ -75,6 +75,7 @@ function RightPanel(props) {
         m: 1,
         flexGrow: 1,
         flexShrink: 1,
+        overflow: "auto",
         boxShadow: "none",
       },
     }, tabs({

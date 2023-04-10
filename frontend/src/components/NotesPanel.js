@@ -1,6 +1,8 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import vNode from '../lib/vue-to-react';
 
+import { sortBy } from 'lodash';
+
 import CircularProgress from '@mui/joy/CircularProgress';
 
 import {
@@ -47,11 +49,14 @@ export default function NotesPanel(props) {
 
   const [notes, set_notes] = useState([]);
 
+  const loadedOnce = useRef(null);
   useEffect(()=>{
     const fn = async()=>{
+      if (loadedOnce.current) {return;};
+      loadedOnce.current = true;
       const resp = await backendApi.getTopicNotes(topic?.topic_id);
       console.log(resp);
-      const got_notes = resp?.data??[];
+      const got_notes = sortBy(resp?.data??[], "last_modified_ts");
       console.log(got_notes);
       set_notes(got_notes);
       set_loading(false);

@@ -2,9 +2,9 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import vNode from '../lib/vue-to-react';
 // import Lodash_debounce from 'lodash/debounce';
 import { cloneDeep } from 'lodash';
+import { sortBy } from 'lodash';
 
-import TopicsPanel from '../components/TopicsPanel';
-import ChatPanel from '../components/ChatPanel';
+import CircularProgress from '@mui/joy/CircularProgress';
 
 
 import {
@@ -37,11 +37,14 @@ export default function TagsPanel(props) {
 
   const [tags, set_tags] = useState([]);
 
+  const loadedOnce = useRef(null);
   useEffect(()=>{
     const fn = async()=>{
+      if (loadedOnce.current) {return;};
+      loadedOnce.current = true;
       const resp = await backendApi.getTopicTags(topic?.topic_id);
       console.log(resp);
-      const got_tags = resp?.data??[];
+      const got_tags = sortBy(resp?.data??[], "last_modified_ts");
       console.log(got_tags);
       set_tags(got_tags);
       set_loading(false);
@@ -58,7 +61,17 @@ export default function TagsPanel(props) {
     },
   }, vstack({
     gap: 1,
-  }, tags.map((tag, idx)=>smOutlinedCard({}, [
+  }, loading ? [
+    sheet({
+    }, vNode(CircularProgress, {
+      variant: "soft",
+      sx: {
+        display: "flex",
+        mx: "auto",
+        mt: "2em",
+      },
+    })),
+  ] : tags.map((tag, idx)=>smOutlinedCard({}, [
     `${tag?.tag_name??"<未命名标签>"} (${tag?.doc_count??0})`
   ]))));
 };
