@@ -474,10 +474,10 @@ export default function ChatPanel(props) {
 
 
   const onSend = async(text, type="question", doc_id, event)=>{
-    console.log("\nonClickButton\n");
+    console.log("\nonSend\n");
     const m1 = MessagePlugin.info(`正在处理`);
     try {
-      const history = [...conversations];
+      const history = cloneDeep(conversations);
 
       const tmpConversations = [...history, {
         isTmp: true,
@@ -488,18 +488,26 @@ export default function ChatPanel(props) {
 
       滚下去();
 
+      console.log("\nflag1\n");
+
 
       const resp = await backendApi.createNewConversation(type, topic?.topic_id, doc_id, text);
+      console.log("\nflag2 1\n");
       console.log(resp);
+      console.log("\nflag2 2\n");
       console.log(resp?.data);
+      console.log("\nflag2 3\n");
 
       const newConversations = [...history, resp?.data];
+
+      console.log("\nflag2 4\n");
       set_conversations(newConversations);
       //
       MessagePlugin.close(m1);
       // MessagePlugin.success(`成功添加笔记“${sliced}”`, 3_000);
       set_inputText("");
       滚下去();
+      console.log("\nflag3\n");
     } catch(error) {
       console.log(error);
       MessagePlugin.error(`发生错误！`, 5_000);
@@ -620,7 +628,7 @@ export default function ChatPanel(props) {
         // console.log(newVal);
         set_inputText(newVal);
       },
-      onClickButton: onSend,
+      onClickButton: (event)=>{onSend(inputText, "question", null, event);},
     })),
     vNode(ToolBar, {
       topic_id: topic?.topic_id,

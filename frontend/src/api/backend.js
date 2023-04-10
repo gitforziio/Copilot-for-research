@@ -99,7 +99,7 @@ export class BackendApi {
     return resp;
   }
   async createNewConversation(type, topic_id, doc_id, question) {
-    console.log("createNewConversation");
+    console.log("createNewConversation\n", [type, topic_id, doc_id, question]);
     // type: full/summary/question,
     // topic_id,
     // doc_id: Optional
