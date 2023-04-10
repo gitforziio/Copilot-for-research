@@ -55,5 +55,11 @@ export default function GraphPanel(props) {
     },
   }, vstack({
     gap: 1,
-  }, "1"));
+  }, [
+    vNode('img', {src: `${'/Copilot-for-research'}/images/graph.png`}),
+    ty({level: "body2", sx: {
+      mt: 1,
+      textAlign: "center",
+    }}, "功能开发中"),
+  ]));
 };
